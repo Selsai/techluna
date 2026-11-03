@@ -2,6 +2,9 @@
 
 ## 2026-11-03
 
+- Préproduction Render/Atlas vérifiée : service Live, /health 200 et 25 produits ; ajout des captures au rendu.
+- Rapport d'examen rectifié après le déploiement : état réel E21 à E29 et limites explicites.
+
 - Correction CORS des origines locales de développement (`localhost` et `127.0.0.1`, avec le port Vite utilisé) ; restriction exacte conservée en production.
 - Séparation de l'accueil (quatre coups de cœur) et de la boutique complète ; navigation dédiée dans l'en-tête.
 - Ajout des champs obligatoires signalés, de messages d'erreur et de confirmations visibles après inscription et commande.
