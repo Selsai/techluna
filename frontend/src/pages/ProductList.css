@@ -1,0 +1,48 @@
+.storefront { padding: 1.25rem 0 5rem; }
+.store-hero { min-height: 480px; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); overflow: hidden; border-radius: 1.7rem; background: linear-gradient(128deg, #f7e9ec 0%, #f2e1e6 48%, #e8dce8 100%); position: relative; }
+.hero-copy { min-width: 0; padding: clamp(2.2rem, 5vw, 5.5rem); position: relative; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
+.eyebrow { color: #8b4b6a; font-size: .69rem; font-weight: 800; letter-spacing: .2em; }
+.hero-copy h1 { font-size: clamp(3.1rem, 5.4vw, 5.8rem); line-height: .99; margin: 1.25rem 0; font-weight: 500; }
+.hero-copy h1 em { color: #8b4b6a; font-style: italic; }
+.hero-intro { max-width: 31rem; color: #5f5360; font-size: 1rem; line-height: 1.7; }
+.hero-link { display: inline-flex; gap: 1.8rem; align-items: center; margin-top: 1.65rem; padding: .85rem 1.2rem; border-radius: 999px; color: #fff; background: #713c5a; font-size: .88rem; font-weight: 700; text-decoration: none; }
+.hero-link:hover { background: #4f2941; color: #fff; }
+.hero-note { margin-top: 2.6rem; color: #796a75; font-size: .77rem; letter-spacing: .04em; }
+.hero-art { position: relative; display: grid; place-items: center; overflow: hidden; }
+.hero-orbit { width: 72%; aspect-ratio: 1; position: absolute; border: 1px solid #b795a8; border-radius: 50%; box-shadow: 0 0 0 45px #ffffff20, 0 0 0 90px #ffffff16; }
+.hero-art img { width: 90%; max-width: 510px; aspect-ratio: 1; object-fit: cover; border-radius: 50%; mix-blend-mode: multiply; position: relative; transform: rotate(-8deg) scale(1.08); }
+.hero-sticker { position: absolute; right: 8%; bottom: 14%; display: grid; place-items: center; width: 102px; height: 102px; border-radius: 50%; background: #fffaf7; color: #723d5a; font-family: Georgia, serif; font-style: italic; font-size: .98rem; text-align: center; box-shadow: 0 12px 28px #58314b28; transform: rotate(10deg); }
+.store-perks { display: flex; justify-content: space-around; gap: 1rem; padding: 1.35rem; color: #765e6d; font-size: .78rem; letter-spacing: .04em; border-bottom: 1px solid #e8dae2; }
+.catalogue { padding-top: 4.3rem; scroll-margin-top: 1rem; }
+.catalogue-heading { display: flex; justify-content: space-between; align-items: end; gap: 1.5rem; }
+.catalogue-heading h2 { font-size: clamp(2.4rem, 4vw, 3.5rem); font-weight: 500; line-height: 1; margin: .65rem 0; }
+.catalogue-heading p:last-child { color: #786b75; }
+.search-box { min-width: min(100%, 310px); border: 1px solid #dfd0d8; border-radius: 999px; background: white; display: flex; align-items: center; padding: .15rem .7rem .15rem 1rem; gap: .55rem; color: #8b4b6a; }
+.search-box span { font-size: 1.6rem; line-height: 1; }
+.search-box input { border: 0; outline: none; width: 100%; background: transparent; font-size: .84rem; }
+.catalogue-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-top: 2.2rem; }
+.category-list { display: flex; flex-wrap: wrap; gap: .55rem; }
+.category-chip { border: 1px solid #dfd0d8; border-radius: 999px; padding: .56rem .95rem; background: white; color: #6b5665; font-size: .79rem; white-space: nowrap; }
+.category-chip:hover, .category-chip.active { background: #713c5a; color: white; border-color: #713c5a; }
+.sort-box { display: flex; align-items: center; gap: .55rem; color: #786b75; white-space: nowrap; font-size: .8rem; }
+.sort-box select { padding: .45rem .6rem; border-radius: .5rem; font-size: .8rem; }
+.result-count { margin: 1.6rem 0 1.15rem; color: #8f7d89; font-size: .8rem; }
+.catalogue-message { padding: 3rem; background: white; border-radius: 1rem; text-align: center; color: #6b5665; }
+.product-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.15rem; list-style: none; padding: 0; }
+.product-card { background: white; border: 1px solid #efe7ea; border-radius: 1.05rem; overflow: hidden; box-shadow: 0 7px 25px #3a213211; transition: transform .2s, box-shadow .2s; }
+.product-card:hover { transform: translateY(-4px); box-shadow: 0 18px 36px #3a213222; }
+.product-image-wrap { position: relative; background: #f3f0ef; aspect-ratio: 1.08; overflow: hidden; }
+.product-image-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s; }
+.product-card:hover img { transform: scale(1.045); }
+.product-category { position: absolute; left: .8rem; top: .8rem; border-radius: 999px; padding: .32rem .7rem; background: #fffdf9e8; color: #754a61; font-size: .68rem; font-weight: 700; }
+.image-placeholder { height: 100%; display: grid; place-items: center; color: #8c7080; font-family: Georgia, serif; }
+.product-details { padding: 1rem 1.05rem 1.1rem; }
+.product-details h3 { margin: 0 0 .45rem; font-size: 1.13rem; font-weight: 500; }
+.product-description { min-height: 2.6rem; color: #867a82; font-size: .77rem; line-height: 1.5; }
+.product-footer { display: flex; justify-content: space-between; align-items: center; gap: .35rem; margin-top: 1.1rem; }
+.product-footer strong { color: #3c2b38; font-size: 1rem; white-space: nowrap; }
+.product-footer button { border-radius: 999px; padding: .47rem .7rem; background: #713c5a; color: white; font-size: .75rem; font-weight: 700; white-space: nowrap; }
+.product-footer button:hover:not(:disabled) { background: #4f2941; }
+@media (max-width: 1100px) { .product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .catalogue-toolbar { align-items: flex-start; } }
+@media (max-width: 760px) { .store-hero { grid-template-columns: minmax(0, 1fr); } .hero-copy { padding: 2.3rem; } .hero-art { height: 300px; } .hero-art img { width: 70%; } .hero-sticker { right: 13%; bottom: 8%; } .store-perks { flex-wrap: wrap; justify-content: center; text-align: center; } .catalogue-heading, .catalogue-toolbar { flex-direction: column; align-items: stretch; } .search-box { width: 100%; } .sort-box { align-self: flex-end; } .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 500px) { .product-grid { grid-template-columns: 1fr; } .hero-copy h1 { font-size: 3.4rem; } .hero-art { height: 250px; } .store-perks span { width: 100%; } }

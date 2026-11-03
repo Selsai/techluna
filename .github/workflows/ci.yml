@@ -1,0 +1,35 @@
+name: CI
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Frontend install, test and build
+        working-directory: frontend
+        run: |
+          npm ci
+          npm test
+          npm run lint
+          npm run build
+      - name: API dependencies and syntax
+        working-directory: backend
+        run: |
+          npm ci
+          npm test
+          node --check server.js
+          node --check controllers/secureAuthController.js
+          node --check controllers/secureOrderController.js
+      - name: Validate Docker Compose
+        env:
+          JWT_SECRET: ci-placeholder
+          SERVICE_KEY: ci-placeholder
+        run: docker compose config --quiet
+      - name: Build images
+        env:
+          JWT_SECRET: ci-placeholder
+          SERVICE_KEY: ci-placeholder
+        run: docker compose build

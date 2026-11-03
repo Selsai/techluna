@@ -1,0 +1,10 @@
+import { api } from './api';
+export const getOrders = () => api.get('/orders');
+export const getProducts = () => api.get('/products');
+export const updateOrderStatus = (id, status) => api.put(`/orders/${id}/status`, { status });
+export const updateProductStock = (id, stock) => api.put(`/products/${id}/stock`, { stock });
+export const createProduct = (product) => api.post('/admin/products', product);
+export const editProduct = (id, product) => api.put(`/admin/products/${id}`, product);
+export const deleteProduct = (id) => api.delete(`/admin/products/${id}`);
+export const getUsers = () => api.get('/admin/users');
+export const updateUserRole = (id, role) => api.put(`/admin/users/${id}/role`, { role });

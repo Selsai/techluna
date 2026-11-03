@@ -1,0 +1,10 @@
+const router = require('express').Router();
+const { authenticateToken, isAdmin } = require('../middlewares/authMiddleware');
+const admin = require('../controllers/secureAdminController');
+router.use(authenticateToken, isAdmin);
+router.get('/users', admin.getUsers);
+router.put('/users/:id/role', admin.updateUserRole);
+router.post('/products', admin.createProduct);
+router.put('/products/:id', admin.updateProduct);
+router.delete('/products/:id', admin.deleteProduct);
+module.exports = router;

@@ -1,0 +1,19 @@
+.site-header { background: #fffdfb; border-bottom: 1px solid #eee4e8; }
+.header-announcement { padding: .47rem 1rem; background: #432b3e; color: #f8eaf1; text-align: center; font-size: .67rem; letter-spacing: .14em; text-transform: uppercase; }
+.header-announcement span { color: #d4a5ba; padding: 0 .75rem; }
+.site-nav { max-width: 1320px; min-height: 77px; margin: auto; padding: .8rem 1.4rem; display: flex; justify-content: space-between; align-items: center; gap: 2rem; }
+.site-nav a, .site-nav button { text-decoration: none; color: #4a3845; font-size: .82rem; font-weight: 600; }
+.site-nav a:hover, .site-nav button:hover { color: #9b5578; }
+.site-brand { display: flex; align-items: center; gap: .65rem; flex: none; font-family: Georgia, serif; letter-spacing: .06em; line-height: 1.1; white-space: nowrap; }
+.site-brand > span:last-child { display: block; font-size: 1.18rem; letter-spacing: -.015em; }
+.site-brand strong { font-weight: 700; }
+.site-brand small { display: block; margin-top: .25rem; font-family: Inter, 'Segoe UI', sans-serif; font-size: .46rem; letter-spacing: .29em; color: #9e8290; }
+.brand-logo { display: block; width: 55px; height: 55px; object-fit: contain; mix-blend-mode: multiply; }
+.nav-center, .nav-actions { display: flex; align-items: center; gap: clamp(.7rem, 2vw, 1.8rem); }
+.nav-greeting { font-size: .78rem; color: #8b7783; white-space: nowrap; }
+.nav-text-button { padding: 0; border: 0; background: transparent; }
+.site-nav .nav-signup { border: 1px solid #b889a2; border-radius: 999px; padding: .55rem .8rem; }
+.site-nav .nav-cart { border-radius: 999px; background: #f4e9ee; color: #633850; padding: .55rem .65rem .55rem .9rem; white-space: nowrap; }
+.nav-cart span { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 .22rem; margin-left: .3rem; border-radius: 50%; background: #713c5a; color: white; font-size: .7rem; }
+@media (max-width: 950px) { .site-nav { flex-wrap: wrap; gap: .7rem; } .nav-center { order: 3; width: 100%; justify-content: center; } .nav-actions { margin-left: auto; } }
+@media (max-width: 600px) { .site-nav { padding: .8rem 1rem; flex-direction: column; align-items: stretch; gap: .8rem; } .site-brand { align-self: flex-start; } .site-brand > span:last-child { font-size: 1rem; } .brand-logo { width: 47px; height: 47px; } .nav-greeting, .nav-signup { display: none; } .nav-actions { margin: 0; width: 100%; justify-content: space-between; gap: .65rem; } .nav-center { order: 0; justify-content: flex-start; } .site-nav a, .site-nav button { font-size: .73rem; } }

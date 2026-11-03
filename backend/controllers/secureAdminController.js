@@ -1,0 +1,12 @@
+const Product = require('../models/Product');
+const User = require('../models/User');
+const { id, integer, text } = require('../validation');
+
+const categories = ['Audio', 'Ordinateurs', 'Téléphones', 'Accessoires', 'Composants', 'Écrans & tablettes'];
+const validProduct = (data) => text(data?.name, 120) && text(data?.description, 1000) && categories.includes(data?.category) && typeof data?.price === 'number' && Number.isFinite(data.price) && data.price >= 0 && integer(data.stock) && (!data.imageUrl || (typeof data.imageUrl === 'string' && data.imageUrl.length <= 500 && (data.imageUrl.startsWith('/images/') || data.imageUrl.startsWith('https://'))));
+const productFields = ({ name, description, category, price, stock, imageUrl = '' }) => ({ name, description, category, price, stock, imageUrl });
+exports.createProduct = async (req, res, next) => { try { if (!validProduct(req.body)) return res.status(400).json({ message: 'Produit invalide.' }); const product = await Product.create(productFields(req.body)); res.status(201).json(product); } catch (error) { next(error); } };
+exports.updateProduct = async (req, res, next) => { try { if (!id(req.params.id) || !validProduct(req.body)) return res.status(400).json({ message: 'Produit invalide.' }); const product = await Product.findByIdAndUpdate(req.params.id, productFields(req.body), { new: true, runValidators: true }); if (!product) return res.sendStatus(404); res.json(product); } catch (error) { next(error); } };
+exports.deleteProduct = async (req, res, next) => { try { if (!id(req.params.id)) return res.sendStatus(400); const product = await Product.findByIdAndDelete(req.params.id); if (!product) return res.sendStatus(404); res.json({ message: 'Produit supprimé.' }); } catch (error) { next(error); } };
+exports.getUsers = async (req, res, next) => { try { res.json(await User.find().select('username email role').sort({ username: 1 })); } catch (error) { next(error); } };
+exports.updateUserRole = async (req, res, next) => { try { if (!id(req.params.id) || !['user', 'admin'].includes(req.body?.role)) return res.sendStatus(400); if (req.params.id === req.user.id && req.body.role !== 'admin') return res.status(409).json({ message: 'Impossible de retirer votre propre rôle administrateur.' }); const user = await User.findByIdAndUpdate(req.params.id, { role: req.body.role }, { new: true, runValidators: true }).select('username email role'); if (!user) return res.sendStatus(404); res.json(user); } catch (error) { next(error); } };

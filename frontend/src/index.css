@@ -1,0 +1,31 @@
+/* src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; font-family: Inter, Avenir, 'Segoe UI', sans-serif; color: #332d38; background: #fbf8f7; }
+body { margin: 0; min-width: 320px; background: linear-gradient(180deg, #fffaf8 0%, #f9f5f5 100%); }
+h1, h2, h3 { font-family: Georgia, 'Times New Roman', serif; letter-spacing: -.025em; color: #382436; }
+button, a, input, select { transition: background-color .18s ease, border-color .18s ease, box-shadow .18s ease; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .55; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #a26281; outline-offset: 2px; }
+input, select { border: 1px solid #decdd6; border-radius: .6rem; padding: .6rem .75rem; background: #fff; }
+main { max-width: 1280px; margin: 0 auto; min-height: calc(100vh - 90px); }
+.bg-blue-500, .bg-green-500 { background-color: #7c3f60; }
+.hover\:bg-blue-600:hover { background-color: #67304f; }
+.bg-red-500 { background-color: #b86472; }
+.bg-gray-500 { background-color: #746570; }
+.bg-gray-50 { background-color: #fbf7f8; }
+.bg-gray-200, .bg-gray-300 { background-color: #eee3e8; }
+.text-red-500 { color: #ad465e; }
+.border-gray-300 { border-color: #e5d9df; }
+nav.bg-blue-500 { background: #432b3e; box-shadow: 0 2px 18px #3014231c; }
+nav a:hover { color: #f5cad9; }
+.shadow, .shadow-md, .shadow-lg { box-shadow: 0 12px 34px #51314414; }
+li.rounded.shadow, form.rounded.shadow-md, .rounded-lg.shadow-lg { border: 1px solid #eee1e6; border-radius: 1.1rem; }
+table { background: #fff; border-radius: .8rem; overflow: hidden; }
+.site-footer { margin-top: 3rem; padding: 2rem max(1.5rem, calc((100vw - 1250px)/2)); display: flex; justify-content: space-between; gap: 2rem; background: #432b3e; color: #eadce4; font-size: .8rem; }
+.site-footer strong { display: block; color: white; font-family: Georgia, serif; font-size: 1.25rem; font-weight: 500; }
+.site-footer span { font-style: italic; }
+@media (max-width: 640px) { .site-footer { flex-direction: column; gap: .6rem; } }

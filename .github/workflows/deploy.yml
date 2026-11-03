@@ -1,0 +1,39 @@
+name: Deploy
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        type: choice
+        options: [preproduction, production]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci && npm test && npm run build && npm run lint
+        working-directory: frontend
+      - run: npm ci && npm test
+        working-directory: backend
+  deploy:
+    needs: verify
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trigger Render deployment
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          RENDER_GATEWAY_DEPLOY_HOOK_URL: ${{ secrets.RENDER_GATEWAY_DEPLOY_HOOK_URL }}
+          RENDER_NOTIFICATIONS_DEPLOY_HOOK_URL: ${{ secrets.RENDER_NOTIFICATIONS_DEPLOY_HOOK_URL }}
+          RENDER_STOCK_DEPLOY_HOOK_URL: ${{ secrets.RENDER_STOCK_DEPLOY_HOOK_URL }}
+        run: |
+          test -n "$RENDER_DEPLOY_HOOK_URL"
+          for hook in "$RENDER_NOTIFICATIONS_DEPLOY_HOOK_URL" "$RENDER_STOCK_DEPLOY_HOOK_URL" "$RENDER_GATEWAY_DEPLOY_HOOK_URL"; do
+            if [ -n "$hook" ]; then curl --fail --silent --show-error --request POST "$hook"; fi
+          done
+          curl --fail --silent --show-error --request POST "$RENDER_DEPLOY_HOOK_URL"

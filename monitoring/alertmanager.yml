@@ -1,0 +1,9 @@
+route:
+  receiver: notifications
+  group_wait: 30s
+  repeat_interval: 4h
+receivers:
+  - name: notifications
+    webhook_configs:
+      - url: http://notifications:4002/alerts
+        send_resolved: true

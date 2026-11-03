@@ -1,0 +1,10 @@
+groups:
+  - name: exam-app
+    rules:
+      - alert: ServiceIndisponible
+        expr: probe_success == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service indisponible : {{ $labels.instance }}"
