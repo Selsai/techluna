@@ -53,12 +53,11 @@ const Order = () => {
         shippingMethod,
       };
 
-      await createOrder(orderDetails);
+      const { data } = await createOrder(orderDetails);
 
       dispatch({ type: "CLEAR_CART" });
-      navigate('/mes-commandes');
+      navigate('/mes-commandes', { state: { notice: `Commande ${data.order._id.slice(-8)} confirmée. Retrouvez son suivi ci-dessous.` } });
     } catch (error) {
-      console.error("Erreur lors de la commande", error);
       setErrorMessage(error.response?.data?.message || 'Une erreur technique est survenue. Veuillez réessayer.');
     }
   };

@@ -14,14 +14,16 @@ import { useCart } from '../context/CartContext';
   return (
     <div className="border p-4 rounded-md">
       <label htmlFor="shipping" className="block text-sm font-medium text-gray-700">
-        Méthode de livraison:
+        Méthode de livraison <span className="required-mark">*</span>
       </label>
       <select 
         id="shipping" 
-        value={shippingMethod} 
+        value={shippingMethod || ''}
         onChange={handleShippingChange} 
+        required
         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
       >
+        <option value="" disabled>Choisir une livraison</option>
         {shippingOptions.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}

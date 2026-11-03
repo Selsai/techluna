@@ -1,6 +1,6 @@
 // src/pages/Login.js
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
@@ -9,6 +9,7 @@ const Login = () => {
     password: "",
   });
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -27,8 +28,7 @@ const Login = () => {
         setErrorMessage(message);
       } else {
         // Erreur réseau ou autre
-        console.error("Erreur réseau ou serveur", error);
-        setErrorMessage("Une erreur est survenue. Veuillez réessayer.");
+        setErrorMessage("Impossible de joindre le serveur. Vérifiez que le backend est démarré, puis réessayez.");
       }
     }
   };
@@ -40,9 +40,10 @@ const Login = () => {
         onSubmit={handleSubmit}
         className="auth-card"
       >
-        <p className="eyebrow">BON RETOUR</p><h1>Connexion</h1><p className="auth-subtitle">Heureuse de vous retrouver chez TechLuna.</p>
+        <p className="eyebrow">BON RETOUR</p><h1>Connexion</h1><p className="auth-subtitle">Heureuse de vous retrouver chez TechLuna. <span className="required-mark">*</span> Champs obligatoires.</p>
+        {location.state?.notice && <p className="auth-success" role="status">{location.state.notice}</p>}
         {errorMessage && <p className="auth-error" role="alert">{errorMessage}</p>}
-        <label htmlFor="login-username">Nom d'utilisateur</label>
+        <label htmlFor="login-username">Nom d'utilisateur <span className="required-mark">*</span></label>
         <input
           id="login-username"
           type="text"
@@ -54,7 +55,7 @@ const Login = () => {
           className="border border-gray-300 p-2 w-full mb-4"
           required
         />
-        <label htmlFor="login-password">Mot de passe</label>
+        <label htmlFor="login-password">Mot de passe <span className="required-mark">*</span></label>
         <input
           id="login-password"
           type="password"

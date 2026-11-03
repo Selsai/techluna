@@ -24,6 +24,8 @@ services:
       NOTIFICATION_URL: http://gateway:8000/notify
       SERVICE_KEY: ${SERVICE_KEY:?SERVICE_KEY required}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM: ${RESEND_FROM:-}
     depends_on: [mongo, gateway]
     restart: unless-stopped
   mongo:
@@ -48,6 +50,8 @@ services:
       SMTP_PASSWORD: ${SMTP_PASSWORD:-}
       SMTP_FROM: ${SMTP_FROM:-}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM: ${RESEND_FROM:-}
     restart: unless-stopped
   stock-management:
     build: ./microservices/stock-management

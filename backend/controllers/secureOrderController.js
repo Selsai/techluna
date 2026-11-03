@@ -27,6 +27,7 @@ exports.createOrder = async (req, res, next) => {
     const total = Math.round(orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0) * 100) / 100;
     const order = await Order.create({ userId: req.user.id, items: orderItems, total, shippingAddress, paymentMethod, shippingMethod });
     notify(process.env.ADMIN_EMAIL, 'Nouvelle commande', `Commande ${order.id} créée.`);
+    if (req.user.email) notify(req.user.email, 'Confirmation de commande TechLuna', `Votre commande ${order.id} a été créée. Total : ${total.toFixed(2)} €.`);
     res.status(201).json({ message: 'Commande créée.', order });
   } catch (error) {
     for (const item of reserved) await Product.updateOne({ _id: item.productId }, { $inc: { stock: item.quantity } }).catch(() => {});
@@ -41,7 +42,7 @@ exports.updateOrderStatus = async (req, res, next) => {
     if (!id(req.params.orderId) || !statuses.includes(req.body?.status)) return res.status(400).json({ message: 'Statut ou identifiant invalide.' });
     const order = await Order.findByIdAndUpdate(req.params.orderId, { status: req.body.status }, { new: true, runValidators: true });
     if (!order) return res.status(404).json({ message: 'Commande introuvable.' });
-    if (process.env.NOTIFICATION_URL) {
+    if (process.env.NOTIFICATION_URL || process.env.RESEND_API_KEY) {
       const customer = await User.findById(order.userId).select('email');
       if (customer?.email) notify(customer.email, 'Suivi de votre commande TechLuna', `La commande ${order.id} est maintenant : ${order.status}.`);
     }

@@ -15,18 +15,21 @@ const PaymentMethodSelection = () => {
   return (
     <div className="border p-4 rounded-md">
       <label htmlFor="payment" className="block text-sm font-medium text-gray-700">
-      Mode de paiement:
+      Mode de paiement <span className="required-mark">*</span>
       </label>
-      <select id="payment" value={paymentMethod} 
+      <select id="payment" value={paymentMethod || ''}
       onChange={handlePaymentChange}
+      required
       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
       >
+        <option value="" disabled>Choisir un mode</option>
         {paymentOptions.map((option) => (
           <option key={option} value={option}>
             {option}
           </option>
         ))}
       </select>
+      <p className="password-hint">Simulation pour l'examen : aucun paiement n'est prélevé. Stripe sera intégré en mode test.</p>
     </div>
   );
 };

@@ -1,0 +1,7 @@
+# Uniquement pour les tests sur les processeurs sans AVX ; jamais pour Render.
+services:
+  mongo:
+    image: mongo:4.4
+  backend:
+    ports:
+      - '127.0.0.1:5000:5000'

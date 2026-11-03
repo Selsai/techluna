@@ -6,9 +6,9 @@ J'ai préparé un catalogue de démonstration de 25 produits avec mes visuels, l
 
 ## Périmètre et état réel
 
-J'ai livré le code, les conteneurs, la configuration CI/CD et la supervision locale dans ce dépôt. J'ai choisi Render et ses sous-domaines `onrender.com` pour la future mise en ligne. Ma capture du tableau de bord confirme l'existence de mon compte Render et de services antérieurs ; mon dépôt GitHub TechLuna existe, mais je n'ai pas encore configuré de service TechLuna, de base MongoDB Atlas ni de boîte SMTP. Je dois encore exécuter et illustrer ces étapes externes. Je ne place aucun mot de passe dans ce rapport ; je transmettrai les accès nécessaires séparément au jury.
+J'ai livré le code, les conteneurs, la configuration CI/CD et la supervision locale dans ce dépôt. J'ai choisi Render et ses sous-domaines `onrender.com` pour la future mise en ligne. Ma capture du tableau de bord confirme l'existence de mon compte Render et de services antérieurs ; mon dépôt GitHub TechLuna existe, mais je n'ai pas encore configuré de service TechLuna ni de base MongoDB Atlas. Je possède une clé API Resend, mais je ne l'ai pas intégrée au dépôt et aucun email réel n'est encore vérifié. Je dois encore exécuter et illustrer ces étapes externes. Je ne place aucun mot de passe dans ce rapport ; je transmettrai les accès nécessaires séparément au jury.
 
-J'ai créé le dépôt GitHub `Selsai/techluna` et choisi un déploiement exclusivement gratuit. J'ai préparé `Dockerfile.render` pour une démonstration par service web Render Free avec frontend et API sur la même origine et MongoDB Atlas Free. Je ne déploie pas les microservices privés, le SMTP ni la chaîne Prometheus/Alertmanager sur Render dans cette variante. Je signalerai les preuves cloud non obtenues comme non réalisées.
+J'ai créé le dépôt GitHub `Selsai/techluna` et choisi un déploiement exclusivement gratuit. J'ai préparé `Dockerfile.render` pour une démonstration par service web Render Free avec frontend et API sur la même origine et MongoDB Atlas Free. L'envoi d'email par HTTPS via Resend est préparé dans l'API ; son fonctionnement réel dépend de la clé et d'un domaine d'envoi vérifié pour joindre des clients. Je ne déploie pas les microservices privés, le SMTP ni la chaîne Prometheus/Alertmanager sur Render dans cette variante. Je signalerai les preuves cloud non obtenues comme non réalisées.
 
 ## E21 — Hébergement
 
@@ -37,7 +37,7 @@ J'ai remplacé les `console.log/error` des services Node actifs par Winston avec
 
 ## E26 — Supervision et alertes
 
-J'ai configuré le profil Compose `monitoring` avec Prometheus, Blackbox Exporter et Alertmanager. Les sondes HTTP vérifient le frontend, le backend, la gateway, les notifications et le stock toutes les 30 secondes. Après deux minutes d'échec, l'alerte `ServiceIndisponible` arrive au service de notification, qui la journalise avec Winston et envoie un email à `ADMIN_EMAIL` seulement si SMTP est configuré. J'ai aussi fourni `monitoring/prometheus-cloud.example.yml` pour surveiller les deux URL Render réelles depuis le poste local après leur création ; je remplacerai ses deux noms fictifs et définirai `PROMETHEUS_CONFIG_FILE` dans mon `.env`. Je ne prétends pas que Prometheus tourne sur Render Free. Render bloque les ports SMTP usuels depuis les services web gratuits.
+J'ai configuré le profil Compose `monitoring` avec Prometheus, Blackbox Exporter et Alertmanager. Les sondes HTTP vérifient le frontend, le backend, la gateway, les notifications et le stock toutes les 30 secondes. Après deux minutes d'échec, l'alerte `ServiceIndisponible` arrive au service de notification, qui la journalise avec Winston et peut envoyer un email à `ADMIN_EMAIL` si Resend ou SMTP local est configuré. J'ai aussi fourni `monitoring/prometheus-cloud.example.yml` pour surveiller les deux URL Render réelles depuis le poste local après leur création ; je remplacerai ses deux noms fictifs et définirai `PROMETHEUS_CONFIG_FILE` dans mon `.env`. Je ne prétends pas que Prometheus tourne sur Render Free. Render bloque les ports SMTP usuels depuis les services web gratuits ; l'API Resend utilise HTTPS.
 
 ## E27 — Bugs constatés et corrections
 
@@ -48,10 +48,12 @@ J'ai configuré le profil Compose `monitoring` avec Prometheus, Blackbox Exporte
 | Suppression de commande accessible à tout utilisateur connecté | Restriction administrateur |
 | Statut de commande non validé | Liste de statuts autorisés et identifiant contrôlé |
 | Stock accepté comme chaîne ou valeur négative | Entier non négatif obligatoire |
-| Service de notification vide/incomplet | Envoi SMTP réel et réponse d'erreur explicite |
+| Service de notification vide/incomplet | Envoi par Resend HTTPS ou SMTP local et réponse d'erreur explicite |
 | Test React de démonstration obsolète | Test du comportement du panier avec Vitest |
 | Sous-dépôt frontend inaccessible à la CI parent | Intégration des sources au dépôt principal ; sauvegarde locale du dépôt initial |
 | Outillage Create React App obsolète | Migration vers Vite et réduction des dépendances exposées |
+| Inscription rejetée avec « Origine interdite » sur un autre port Vite local | Acceptation des origines HTTP de boucle locale en développement ; origines configurées exactes en production |
+| Accueil et catalogue confondus | Accueil réduit à quatre coups de cœur et page `/boutique` dédiée aux 25 produits |
 
 ## E28 — Sécurité et robustesse
 
@@ -65,14 +67,14 @@ J'ai généré [docs/API_GENEREE.md](docs/API_GENEREE.md) à partir des fichiers
 
 | Demande de la consigne | Réalisation et fichier | Vérification ou limite |
 | --- | --- | --- |
-| Catalogue, catégories et ajout au panier | `frontend/src/pages/ProductList.jsx`, `backend/seeder.js` | 25 fiches et 26 fichiers image dont le logo ; parcours complet non rejoué avec une base active sur ce PC. |
+| Catalogue, catégories et ajout au panier | `frontend/src/pages/ProductList.jsx`, `backend/seeder.js` | 25 fiches et 26 fichiers image dont le logo ; `GET /api/products` vérifié avec une base locale active. Accueil : quatre coups de cœur ; `/boutique` : catalogue complet. |
 | Panier global avec ajout, diminution, retrait et vidage | `frontend/src/context/CartContext.jsx`, `frontend/src/pages/Cart.jsx` | Test Vitest du panier passé ; interface à revoir avec données réelles. |
 | Adresse, transport, paiement simulé et synthèse | `ShippingPayment.jsx`, `Order.jsx`, `backend/controllers/secureOrderController.js` | Données contrôlées ; aucun paiement bancaire réel. |
 | Rôles, administration, commandes, produits, stock, utilisateurs | `backend/middlewares/authMiddleware.js`, `secureAdminController.js`, `secureProductController.js`, `frontend/src/pages/Admin.jsx` | Accès admin côté serveur ; validation visuelle et parcours complet encore à capturer. |
-| Notifications de commande, statut et stock | `backend/notify.js`, `microservices/notifications/index.js`, gateway | Appels présents ; aucun email réel vérifié faute de paramètres SMTP. |
+| Notifications de commande, statut et stock | `backend/notify.js`, `backend/resend.js`, `microservices/notifications/index.js`, gateway | Appels et test Resend simulé présents ; aucun email réel encore vérifié. |
 | Microservice de stock et gateway | `microservices/stock-management/index.js`, `gateway/server.js` | Routes locales en place ; la réservation d'une commande reste effectuée directement par l'API et n'est pas entièrement décentralisée. |
 | Secrets en `.env`, cookie HTTPOnly, contrôle des données | `.gitignore`, `secureAuthController.js`, `backend/validation.js` | `.env` local ignoré par Git, validations Joi et Mongoose, test de session absente passé. |
-| Gestion des erreurs et messages côté client | Contrôleurs sécurisés, middleware d'erreur, pages React | `try/catch` et messages d'erreur React ; je n'ai pas ajouté `connect-flash`, qui est une suggestion du support. |
+| Gestion des erreurs et messages côté client | Contrôleurs sécurisés, middleware d'erreur, pages React | Champs requis marqués, validation, messages d'inscription et de confirmation de commande ; je n'ai pas ajouté `connect-flash`, qui est une suggestion du support. |
 | Qualité et dépendances | ESLint, Prettier, Vite, Vitest, audits npm | Lint, build et tests passés ; les alertes transitives de développement restent à surveiller. |
 | Logs et aide au débogage | Winston JSON sur stdout dans les quatre services Node actifs, logs JSON Caddy | Les logs Compose sont consultables ; aucune centralisation externe n'est configurée. |
 | Documentation générée et historique | `scripts/generate-api-docs.cjs`, `docs/API_GENEREE.md`, `CHANGELOG.md` | Génération reproductible ; les captures cloud manquent tant que Render n'est pas déployé. |
@@ -97,17 +99,18 @@ J'ai généré [docs/API_GENEREE.md](docs/API_GENEREE.md) à partir des fichiers
 1. J'ai rangé les 25 visuels reçus dans six catégories et intégré le logo TechLuna dans l'en-tête et les métadonnées de la boutique.
 2. J'ai construit une interface responsive pour le catalogue et harmonisé les pages de connexion, inscription, panier, commande et administration avec la palette ivoire, rose poudré, mauve et anthracite.
 3. J'ai écrit un script de semis idempotent : il ajoute ou met à jour les fiches sans effacer les données existantes. Sur Render, je n'exécute le semis automatique que si la collection Produits est vide.
+4. J'ai séparé l'accueil et la boutique complète, ajouté les repères `*` aux champs obligatoires et des confirmations visibles après la création d'un compte et d'une commande. J'ai indiqué que le mode de paiement actuel est une simulation.
 
 ### 4. Conteneurisation, CI et hébergement gratuit
 
 1. J'ai fourni des Dockerfiles pour chaque composant local et un `docker-compose.yml` qui les relie sans exposer MongoDB ni les microservices au public.
 2. J'ai préparé `Dockerfile.render` pour un service web gratuit réunissant API et frontend compilé. Ce regroupement garde l'authentification sur une seule origine HTTPS, car les services privés Render sont payants.
 3. J'ai créé une CI GitHub pour installer, tester, analyser et construire le projet. Le workflow de déploiement manuel ajoute la publication de l'image dans GHCR, puis attend deux deploy hooks Render, un par environnement ; aucune mise en ligne n'a encore été déclenchée.
-4. J'ai testé Docker Desktop : les images applicatives ont été construites et les conteneurs ont démarré. Sur ce PC, `mongo:7` s'arrête avec le code 132 parce que le processeur ne fournit pas AVX ; la requête catalogue retourne donc 502. J'ai arrêté la pile sans supprimer ses volumes. Je poursuivrai les parcours avec Atlas Free avant de déclarer une validation de bout en bout.
+4. J'ai testé Docker Desktop : les images applicatives ont été construites et les conteneurs ont démarré. Sur ce PC, `mongo:7` s'arrête avec le code 132 parce que le processeur ne fournit pas AVX. J'ai ajouté une variante **locale uniquement** avec `mongo:4.4`, démarré MongoDB et le backend, exécuté le seeder et vérifié que `GET /api/products` renvoie les 25 produits. Je n'utiliserai pas MongoDB 4.4 en production ; Atlas Free servira au déploiement. Les parcours complets de commande et d'administration restent à tester et capturer.
 
 ### 5. Documentation, tests et preuves
 
-1. J'ai exécuté le test frontend du panier, le test backend de la sonde et du contrôle d'accès, ESLint, la compilation Vite et la validation de la configuration Compose. Ces contrôles passent ; ils ne démontrent pas à eux seuls un parcours complet avec MongoDB.
+1. J'ai exécuté le test frontend du panier, le test backend de la sonde, du contrôle d'accès, des origines locales et de l'appel Resend simulé, ESLint, la compilation Vite et la validation de la configuration Compose. Ces contrôles passent. J'ai également vérifié avec MongoDB local : 25 produits, formulaire d'inscription vide rejeté (400), compte créé (201), connexion (200) et session (200) sur une autre origine Vite locale ; j'ai ensuite supprimé le compte d'essai. Les parcours de commande et d'administration restent à rejouer dans le navigateur et en préproduction.
 2. J'ai créé `scripts/generate-api-docs.cjs` pour extraire automatiquement les méthodes, chemins et niveaux d'accès des fichiers de routes. Je régénère `docs/API_GENEREE.md` avec `npm run docs:api` après toute modification des routes.
 3. Je conserve les anciennes captures comme prévisualisations historiques. Après connexion à Atlas et déploiement Render, je prendrai des captures TechLuna portant les URL, statuts et résultats réellement observés, sans afficher de secrets.
 
@@ -121,7 +124,7 @@ Mes trois captures initiales dans `captures/` montrent le catalogue desktop, le 
 | E23 : URL et TLS | Adresse `https://...onrender.com` et certificat valide pour chaque service | À faire ; aucun domaine personnel ni DNS personnalisé. |
 | E24 : CI/CD | Exécution verte de GitHub Actions et déploiements Render successifs | À faire après publication de la version adaptée. |
 | E25 : journaux | Logs Render filtrés, puis `docker compose logs` pour les composants locaux | À faire, en masquant toute donnée sensible. |
-| E26 : sondes et alertes | État des deux sondes HTTPS et journal Winston de l'alerte dans Compose local ; email seulement si SMTP est obtenu | Configuration prête, test de déclenchement non réalisé ; pas de Prometheus hébergé sur Render Free. |
+| E26 : sondes et alertes | État des deux sondes HTTPS et journal Winston de l'alerte dans Compose local ; email si Resend ou SMTP local est configuré | Configuration prête, test de déclenchement non réalisé ; pas de Prometheus hébergé sur Render Free. |
 | E27–E28 : parcours et refus | Catalogue TechLuna, panier, commande, admin, réponse 400 et réponse 403 | À refaire sur une base fonctionnelle. |
 | E29 : code documenté | `npm run docs:api`, fichier généré et `CHANGELOG.md` | Génération réalisée ; capture facultative à ajouter. |
 | Sauvegarde/restauration | Export et réimport manuel d'une base de test Atlas Free | Non réalisé ; aucune sauvegarde managée à revendiquer. |

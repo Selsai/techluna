@@ -12,16 +12,24 @@ app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  const allowed = (process.env.APP_ORIGIN || process.env.RENDER_EXTERNAL_URL || 'http://localhost:5173').split(',');
+  const allowed = (process.env.APP_ORIGIN || process.env.RENDER_EXTERNAL_URL || 'http://localhost:5173').split(',').map((value) => value.trim());
   const origin = req.headers.origin;
-  if (origin && allowed.includes(origin)) {
+  const localDevOrigin = (value) => {
+    if (process.env.NODE_ENV === 'production' || !value) return false;
+    try {
+      const url = new URL(value);
+      return url.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
+    } catch { return false; }
+  };
+  const originAllowed = !origin || allowed.includes(origin) || localDevOrigin(origin);
+  if (origin && originAllowed) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   }
-  if (req.method === 'OPTIONS') return res.sendStatus(origin && !allowed.includes(origin) ? 403 : 204);
-  if (origin && !allowed.includes(origin) && !['GET', 'HEAD'].includes(req.method)) return res.status(403).json({ message: 'Origine interdite.' });
+  if (req.method === 'OPTIONS') return res.sendStatus(originAllowed ? 204 : 403);
+  if (!originAllowed && !['GET', 'HEAD'].includes(req.method)) return res.status(403).json({ message: 'Origine interdite.' });
   req.cookies = Object.fromEntries((req.headers.cookie || '').split(';').map((part) => {
     const separator = part.indexOf('=');
     return separator > 0 ? [part.slice(0, separator).trim(), part.slice(separator + 1).trim()] : ['', ''];
