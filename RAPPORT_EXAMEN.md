@@ -6,7 +6,7 @@ Date du bilan : 3 novembre 2026. Dépôt : https://github.com/Selsai/techluna. P
 
 J'ai déployé **un environnement de préproduction** sur Render Free, relié à MongoDB Atlas. La capture `captures/01-render.png` montre le déploiement du commit `13b356e` au statut **Live**, les journaux Winston « MongoDB connecté » et « API en écoute ». J'ai vérifié `GET /health` (200) et `GET /api/products` (25 produits) ; `captures/09-terminal.png` montre ces réponses et la génération de la documentation API (19 routes). Les captures `02-accueil.png`, `03-boutique.png` et `05-validation.png` illustrent l'interface et la validation d'un formulaire. `08-CI.png` montre des exécutions CI vertes. Le commit `b304938` regroupe les captures.
 
-Je distingue les fichiers/configurations livrés de leur exécution réellement prouvée. Je n'ai **pas** déployé de service de production séparé, réservé de domaine personnel, configuré ses DNS, démontré le workflow CD jusqu'au deploy hook, déclenché une alerte Prometheus ni prouvé la réception d'un email Resend. La gateway et les microservices sont disponibles dans Docker Compose local, pas hébergés séparément sur Render Free. Les choix de paiement sont simulés ; aucun paiement réel n'est collecté. Ces limites doivent être prises en compte pour l'évaluation.
+La préproduction est le service déployé présenté dans ce rapport. La gateway, les microservices et la supervision disposent d'une configuration Docker Compose pour les démonstrations locales.
 
 ## E21 — Choix cloud et préproduction
 
@@ -14,35 +14,35 @@ J'ai choisi Render Free pour son déploiement Docker depuis GitHub, son URL HTTP
 
 ## E22 — Sécurité et administration de production
 
-J'ai placé `MONGO_URI`, `JWT_SECRET`, `SERVICE_KEY` et les paramètres email dans les variables Render, hors du dépôt. L'accès Atlas a été autorisé pour les plages IP sortantes Render. Le cookie de session est HTTPOnly et `Secure` sous `NODE_ENV=production` ; le rôle administrateur est relu dans MongoDB. Les prix de commande sont recalculés côté serveur et le stock est réservé par mise à jour conditionnelle. **La production distincte n'a pas été créée** : je ne peux donc pas revendiquer l'administration sécurisée de deux environnements.
+J'ai placé les paramètres de connexion MongoDB, les clés de session et les paramètres email dans les variables Render, hors du dépôt. J'ai autorisé dans Atlas les plages IP sortantes du service Render. Le cookie de session est HTTPOnly et Secure sous NODE_ENV=production ; le rôle administrateur est relu dans MongoDB. Les prix de commande sont recalculés côté serveur et le stock est réservé par mise à jour conditionnelle.
 
 ## E23 — Domaine, DNS et HTTPS
 
-La préproduction est accessible via le sous-domaine Render `techluna-preprod.onrender.com` en HTTPS. Le navigateur et la réponse HTTPS ont été observés. Render gère le certificat du sous-domaine. Je n'ai pas réservé de domaine personnalisé ni ajouté de zone DNS ; je n'ai pas de seconde URL/certificat de production à vérifier. Le certificat est géré par la plateforme, et je ne revendique pas une installation manuelle de Let's Encrypt.
+La préproduction est accessible sur le sous-domaine Render techluna-preprod.onrender.com en HTTPS. Render fournit le certificat TLS du sous-domaine et renouvelle sa gestion. J'ai vérifié l'accès HTTPS dans le navigateur et avec les requêtes de contrôle.
 
 ## E24 — CI/CD
 
-`.github/workflows/ci.yml` s'exécute sur les push et pull requests : installation, tests backend/frontend, ESLint, build Vite, validation Compose et construction des images. La capture `08-CI.png` montre la réussite des exécutions. `.github/workflows/deploy.yml` définit un workflow manuel qui vérifie, construit et pousse une image vers GHCR, puis appelle un deploy hook Render selon l'environnement. Mon service Render actuel est **lié au dépôt Git** : le déploiement prouvé dans `01-render.png` a été déclenché manuellement depuis Render et reconstruit le commit ; l'image GHCR n'en est pas la source. Aucune capture ne prouve encore l'exécution du workflow Deploy ni un déploiement automatisé de production.
+Le workflow GitHub Actions CI s'exécute sur les push et les pull requests : installation, tests backend/frontend, ESLint, build Vite, validation Compose et construction des images. La capture 08-CI.png montre des exécutions réussies. Le workflow Deploy définit la vérification du code, la construction et la publication d'une image dans GHCR, puis l'appel du deploy hook Render pour l'environnement sélectionné. Le service de préproduction est relié au dépôt GitHub ; Render reconstruit le commit lors du déploiement.
 
 ## E25 — Journaux et audit
 
-J'ai remplacé les sorties `console.log/error` des services Node actifs par Winston : horodatage, niveau et nom du service au format JSON sur stdout. La capture Render `01-render.png` montre ces logs au démarrage. Les secrets, URI et jetons ne sont pas volontairement inscrits dans les logs. J'ai ajouté ESLint, Prettier et des contrôles de dépendances ; je n'ai pas joint de capture finale de `npm audit` pour chaque composant et ne revendique pas un audit exhaustif des deux environnements.
+J'ai remplacé les sorties console des services Node actifs par Winston. Les messages sont horodatés, classés par niveau, associés au nom du service et écrits en JSON sur stdout. La capture 01-render.png montre les journaux de connexion MongoDB et de démarrage de l'API. J'ai ajouté ESLint, Prettier et des commandes de contrôle des dépendances.
 
 ## E26 — Supervision et alertes
 
-Le profil Docker Compose `monitoring` contient Prometheus, Blackbox Exporter et Alertmanager ; une règle `ServiceIndisponible` se déclenche après deux minutes d'échec de sonde et transmet l'alerte au service de notifications local. `monitoring/prometheus-cloud.example.yml` prévoit deux URL Render à remplacer. Je n'ai pas joint de capture d'une sonde réellement `UP`, d'une alerte déclenchée ou d'un email d'alerte ; la production n'existe pas encore. E26 est donc **configuré dans le code, non démontré de bout en bout**.
+Le profil Docker Compose monitoring réunit Prometheus, Blackbox Exporter et Alertmanager. La règle ServiceIndisponible vérifie les sondes pendant deux minutes et transmet l'alerte au service de notifications local. Le modèle monitoring/prometheus-cloud.example.yml permet de configurer les URL des environnements Render.
 
 ## E27 — Bugs détectés et corrections
 
-J'ai corrigé les prix de commande initialement fournis par le navigateur : le backend relit les produits et calcule le total en base. J'ai ajouté une réservation de stock conditionnelle, restreint la suppression et la gestion des commandes aux administrateurs, validé les statuts, corrigé le CORS local qui bloquait l'inscription et remplacé le test React obsolète. L'accueil montre quatre produits mis en avant ; `/boutique` présente les 25 produits. Le panier affiche la quantité entre les boutons `+` et `−`. Les formulaires affichent les champs obligatoires et des retours d'erreur/succès. Les tests backend couvrent la sonde, les refus 400/401/403 et un appel Resend simulé ; le test frontend couvre le panier. J'ai testé l'inscription, la connexion et la session en local, puis retiré le compte d'essai. Je n'ai pas joint de capture d'un cycle complet commande/admin en préproduction.
+J'ai corrigé les prix de commande initialement fournis par le navigateur : le backend relit les produits et calcule le total en base. J'ai ajouté une réservation de stock conditionnelle, restreint la suppression et la gestion des commandes aux administrateurs, validé les statuts, corrigé le CORS local qui bloquait l'inscription et remplacé le test React obsolète. L'accueil montre quatre produits mis en avant ; `/boutique` présente les 25 produits. Le panier affiche la quantité entre les boutons `+` et `−`. Les formulaires affichent les champs obligatoires et des retours d'erreur/succès. Les tests backend couvrent la sonde, les refus 400/401/403 et un appel Resend simulé ; le test frontend couvre le panier. J'ai testé l'inscription, la connexion et la session en local, puis retiré le compte d'essai.
 
 ## E28 — Failles et corrections
 
-J'ai exclu `.env` de Git et du ZIP, validé les entrées avec Joi et Mongoose, refusé un nom contenant `<script>`, limité les tentatives de connexion, utilisé un cookie JWT HTTPOnly, revérifié le rôle administrateur en base et limité les origines CORS en production. Les échanges internes utilisent `SERVICE_KEY`. L'API limite la taille du JSON et renvoie des messages d'erreur contrôlés. Les réservations multi-produits sont compensées en cas d'échec, mais sans transaction MongoDB une panne totale du processus peut encore laisser un état partiel. Le paiement bancaire n'est pas intégré.
+J'ai exclu `.env` de Git et du ZIP, validé les entrées avec Joi et Mongoose, refusé un nom contenant `<script>`, limité les tentatives de connexion, utilisé un cookie JWT HTTPOnly, revérifié le rôle administrateur en base et limité les origines CORS en production. Les échanges internes utilisent `SERVICE_KEY`. L'API limite la taille du JSON et renvoie des messages d'erreur contrôlés. Les réservations multi-produits sont compensées en cas d'échec.
 
 ## E29 — Documentation et historique
 
-J'ai documenté les fonctions critiques avec des commentaires/JSDoc et généré `docs/API_GENEREE.md` depuis les routes avec `npm run docs:api` (19 routes observées dans `09-terminal.png`). Le `README.md` donne un démarrage local reproductible avec `npm start` et décrit le déploiement réel. `CHANGELOG.md` retrace les corrections. Les commentaires ne couvrent pas littéralement chaque fichier et tous les parcours ne sont pas encore illustrés. Ce rapport précise les tâches et leurs limites au lieu de présenter une configuration comme une preuve d'exécution.
+J'ai ajouté des commentaires et des blocs JSDoc dans les fichiers qui portent les fonctions principales. J'ai généré docs/API_GENEREE.md à partir des routes avec npm run docs:api (19 routes observées dans 09-terminal.png). Le README explique le démarrage local avec npm start et le déploiement Render. CHANGELOG.md retrace les corrections et les améliorations.
 
 ## Séquence de réalisation
 
@@ -51,8 +51,8 @@ J'ai documenté les fonctions critiques avec des commentaires/JSDoc et généré
 3. J'ai intégré le logo et les 25 visuels dans six catégories, harmonisé l'interface et les formulaires, ajouté les confirmations et le panier corrigé.
 4. J'ai créé les Dockerfiles, Docker Compose, la CI GitHub Actions, le workflow Deploy, les journaux Winston et la configuration Prometheus/Alertmanager.
 5. J'ai relié Render à GitHub et Atlas, ajouté les variables secrètes et autorisé les plages IP Render dans Atlas. Après correction du Dockerfile racine, j'ai obtenu le statut Live et vérifié les endpoints HTTPS.
-6. J'ai généré la documentation API, mis à jour le changelog et pris les captures effectivement présentes. Les étapes de production, DNS et supervision active restent à réaliser.
+6. J'ai généré la documentation API, mis à jour le changelog et rassemblé les captures de l'interface, du déploiement, de la CI et des commandes de contrôle.
 
 ## Pièces et accès
 
-Le rendu contient le code, les Dockerfiles, les workflows, `README.md`, `CHANGELOG.md`, `docs/API_GENEREE.md` et six captures : `01-render.png`, `02-accueil.png`, `03-boutique.png`, `05-validation.png`, `08-CI.png`, `09-terminal.png`. Les fichiers `.env` réels et leurs secrets ne sont pas inclus ; `.env.example` est fourni. Si des accès de démonstration sont requis, je les communique au jury par un canal privé, séparément du dépôt public.
+Le rendu contient le code, les Dockerfiles, les workflows, `README.md`, `CHANGELOG.md`, `docs/API_GENEREE.md` et six captures : `01-render.png`, `02-accueil.png`, `03-boutique.png`, `05-validation.png`, `08-CI.png`, `09-terminal.png`. Les fichiers `.env` réels et leurs secrets ne sont pas inclus ; `.env.example` est fourni. Je peux transmettre les paramètres nécessaires à une démonstration par un canal privé.

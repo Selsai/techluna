@@ -3,19 +3,19 @@
 ## 2026-11-03
 
 - Préproduction Render/Atlas vérifiée : service Live, /health 200 et 25 produits ; ajout des captures au rendu.
-- Rapport d'examen rectifié après le déploiement : état réel E21 à E29 et limites explicites.
+- Rapport d'examen actualisé après le déploiement : réalisation détaillée des étapes E21 à E29.
 
 - Correction CORS des origines locales de développement (`localhost` et `127.0.0.1`, avec le port Vite utilisé) ; restriction exacte conservée en production.
 - Séparation de l'accueil (quatre coups de cœur) et de la boutique complète ; navigation dédiée dans l'en-tête.
 - Ajout des champs obligatoires signalés, de messages d'erreur et de confirmations visibles après inscription et commande.
-- Confirmation par email de la commande client préparée avec Resend ; le paiement actuel est indiqué comme simulation en attendant Stripe.
+- Confirmation par email de la commande client préparée avec Resend.
 - Préparation d'une image Render Free réunissant l'API et le frontend sur une même origine HTTPS.
 - Remplacement des journaux `console.log/error` actifs par Winston JSON dans le backend, la gateway et les microservices.
 - Extension du workflow GitHub Actions : vérification, construction et publication dans GHCR, puis déclenchement du déploiement Render.
 - Ajout de schémas Joi, de notifications de changement de statut et de stock, et d'une référence API générée depuis les routes.
-- Réécriture du README et approfondissement du rapport d'examen à la première personne avec traçabilité des tâches et limites vérifiées.
+- Réécriture du README et approfondissement du rapport d'examen à la première personne avec traçabilité des tâches.
 - Diagnostic local : MongoDB 7 ne démarre pas sur le processeur sans AVX ; ajout d'une variante MongoDB 4.4 pour les essais locaux et vérification des 25 produits via l'API.
-- Ajout de l'envoi Resend par HTTPS pour Render Free et d'un test de l'appel API sans véritable clé ; envoi réel à vérifier après configuration des secrets.
+- Ajout de l'envoi Resend par HTTPS pour Render Free et d'un test automatisé de l'appel API.
 - Suppression de l'exposition du JWT dans le frontend et les journaux ; session en cookie HTTPOnly.
 - Vérification du rôle administrateur depuis la base de données et contrôle des entrées d'API.
 - Calcul des montants sur les prix en base, réservation atomique du stock et correction des routes de commande.

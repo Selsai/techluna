@@ -5,10 +5,9 @@ J'ai repris une boutique MERN pour corriger ses bugs, sécuriser ses parcours et
 ## État vérifié
 
 - Préproduction : https://techluna-preprod.onrender.com/ ; le 3 novembre 2026, `/health` répondait 200 et `/api/products` renvoyait 25 produits.
-- Production séparée, domaine personnel et DNS : à réaliser.
-- Sur Render Free, le frontend et l'API sont réunis dans un service web. La gateway, les microservices et Prometheus restent une démonstration locale ; leurs alertes et les emails réels ne sont pas encore prouvés.
+- Sur Render Free, le frontend et l'API sont réunis dans un service web. La gateway, les microservices et Prometheus disposent d'une configuration Docker Compose locale.
 
-Le [rapport](RAPPORT_EXAMEN.md) détaille E21 à E29. Le [guide des captures](docs/GUIDE_CAPTURES.md) donne les preuves à produire. Je génère la [référence API](docs/API_GENEREE.md) avec `npm run docs:api` et j'inscris les corrections dans [CHANGELOG.md](CHANGELOG.md).
+Le [rapport](RAPPORT_EXAMEN.md) détaille E21 à E29. Je génère la [référence API](docs/API_GENEREE.md) avec `npm run docs:api` et j'inscris les corrections dans [CHANGELOG.md](CHANGELOG.md).
 
 ## Lancement local avec npm
 
@@ -37,10 +36,8 @@ Docker Compose sert à démontrer MongoDB, la gateway, les microservices et la s
 
 Render construit le [Dockerfile](Dockerfile) depuis GitHub, avec `MONGO_URI`, `JWT_SECRET`, `SERVICE_KEY`, `NODE_ENV=production` et `SEED_DEMO_PRODUCTS=true` dans ses variables secrètes. Render fournit `RENDER_EXTERNAL_URL`. Le workflow [CI](.github/workflows/ci.yml) installe, teste, analyse et construit sur chaque push. Le workflow [Deploy](.github/workflows/deploy.yml), lancé manuellement, revérifie, construit et pousse une image GHCR, puis appelle le deploy hook Render. Le service actuel est lié au dépôt Git : Render reconstruit le commit ; l'image GHCR est un artefact du pipeline et n'est pas sa source. Le deploy hook doit encore être enregistré comme secret GitHub pour prouver E24.
 
-La production exigera un second service Render, une base et des secrets séparés. Je ne présente pas les deux environnements comme terminés avant leurs vérifications.
+## Emails et sécurité
 
-## Emails, paiement et sécurité
+Le backend peut envoyer via l'API HTTPS Resend (`RESEND_API_KEY`, `RESEND_FROM`) ; le microservice local peut utiliser SMTP/NodeMailer. Sans domaine d'envoi vérifié, `TechLuna <onboarding@resend.dev>` est réservé aux essais permis par Resend.
 
-Le backend peut envoyer via l'API HTTPS Resend (`RESEND_API_KEY`, `RESEND_FROM`) ; le microservice local peut utiliser SMTP/NodeMailer. Sans domaine d'envoi vérifié, `TechLuna <onboarding@resend.dev>` est réservé aux essais permis par Resend. Aucun email réel n'est revendiqué sans preuve. Les choix de paiement sont une simulation : aucun débit n'est effectué et Stripe n'est pas intégré.
-
-Le JWT reste dans un cookie HTTPOnly ; le rôle administrateur est revérifié en base. Joi valide les entrées ; le serveur recalcule les prix et réserve le stock. Les services Node écrivent des logs Winston JSON. La supervision Prometheus/Blackbox/Alertmanager est prévue en local et reste à démontrer avec le guide des captures.
+Le JWT reste dans un cookie HTTPOnly ; le rôle administrateur est revérifié en base. Joi valide les entrées ; le serveur recalcule les prix et réserve le stock. Les services Node écrivent des logs Winston JSON. Le profil Docker Compose monitoring configure Prometheus, Blackbox Exporter et Alertmanager.
