@@ -25,7 +25,10 @@ nav a:hover { color: #f5cad9; }
 .shadow, .shadow-md, .shadow-lg { box-shadow: 0 12px 34px #51314414; }
 li.rounded.shadow, form.rounded.shadow-md, .rounded-lg.shadow-lg { border: 1px solid #eee1e6; border-radius: 1.1rem; }
 table { background: #fff; border-radius: .8rem; overflow: hidden; }
-.site-footer { margin-top: 3rem; padding: 2rem max(1.5rem, calc((100vw - 1250px)/2)); display: flex; justify-content: space-between; gap: 2rem; background: #432b3e; color: #eadce4; font-size: .8rem; }
-.site-footer strong { display: block; color: white; font-family: Georgia, serif; font-size: 1.25rem; font-weight: 500; }
-.site-footer span { font-style: italic; }
-@media (max-width: 640px) { .site-footer { flex-direction: column; gap: .6rem; } }
+/* Signature commune à toutes les pages et affichage lisible des quantités du panier. */
+.site-footer { margin-top: 3rem; padding: 2rem 1rem; display: flex; flex-direction: column; align-items: center; gap: .35rem; background: #432b3e; color: #eadce4; text-align: center; }
+.site-footer img { width: 66px; height: 66px; object-fit: contain; border-radius: 50%; background: #fffaf8; }
+.site-footer strong { color: white; font-family: Georgia, serif; font-size: 1.35rem; font-weight: 500; }
+.site-footer p { margin: .3rem 0 0; font-size: .8rem; }
+.quantity-control { display: inline-flex; align-items: center; gap: .35rem; white-space: nowrap; }
+.quantity-control output { display: inline-grid; place-items: center; min-width: 2.5rem; font-variant-numeric: tabular-nums; }

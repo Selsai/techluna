@@ -18,6 +18,8 @@ test('Resend envoie un email texte par HTTPS sans exposer la clé', async () => 
     assert.equal(request.url, 'https://api.resend.com/emails');
     assert.equal(request.options.headers.Authorization, 'Bearer test-secret');
     assert.deepEqual(JSON.parse(request.options.body).to, ['client@example.com']);
+    assert.match(JSON.parse(request.options.body).html, /logo-techluna\.png/);
+    assert.match(JSON.parse(request.options.body).html, /TechLuna/);
   } finally {
     global.fetch = previousFetch;
     if (previousKey === undefined) delete process.env.RESEND_API_KEY; else process.env.RESEND_API_KEY = previousKey;

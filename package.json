@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "start": "node scripts/start-local.cjs",
     "start:notifications": "node microservices/notifications/index.js",
     "start:stock-management": "node microservices/stock-management/index.js",
     "start:gateway": "node gateway/server.js",

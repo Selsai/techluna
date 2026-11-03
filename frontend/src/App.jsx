@@ -14,14 +14,14 @@ import ShippingPayment from './pages/ShippingPayment';
 import MyOrders from './pages/MyOrders';
 import './pages/Interior.css';
 
-// Layout principal avec Navbar et Outlet
+// Mise en page partagée : navigation, contenu de la route et signature de la boutique.
 const MainLayout = () => (
   <>
     <Navbar />
     <main className="p-4">
       <Outlet />
     </main>
-    <footer className="site-footer"><div><strong>TechLuna</strong><span>La technologie a du style.</span></div><p>Une sélection imaginée pour créer, travailler et s'inspirer.</p></footer>
+    <footer className="site-footer"><img src="/images/logo-techluna.png" alt="Logo TechLuna" /><strong>TechLuna</strong><p>Réalisé par Selsabil Amairi - développeuse web - examen TP noté</p></footer>
   </>
 );
 

@@ -62,26 +62,26 @@ const Cart = () => {
                 <tr key={item.id}>
                   <td className="border border-gray-300 p-2">{item.name}</td>
                   <td className="border border-gray-300 p-2">{item.price}</td>
-                  <td className="border border-gray-300 p-2 flex items-center justify-center">
+                  <td className="border border-gray-300 p-2"><div className="quantity-control">
                     <button
+                      type="button"
+                      aria-label={`Diminuer la quantité de ${item.name}`}
                       onClick={() => decrementQuantity(item.id)}
                       className="bg-gray-300 px-2 py-1 rounded-l"
                     >
                       -
                     </button>
-                    <input
-                      type="number"
-                      value={item.quantity}
-                      readOnly
-                      className="text-center w-12 border border-gray-300 mx-1"
-                    />
+                    {/* La quantité est affichée en lecture seule ; seuls les boutons la modifient. */}
+                    <output aria-label={`Quantité de ${item.name}`}>{item.quantity}</output>
                     <button
+                      type="button"
+                      aria-label={`Augmenter la quantité de ${item.name}`}
                       onClick={() => incrementQuantity(item.id)}
                       className="bg-gray-300 px-2 py-1 rounded-r"
                     >
                       +
                     </button>
-                  </td>
+                  </div></td>
                   <td className="border border-gray-300 p-2">
                     {(item.price * item.quantity).toFixed(2)}
                   </td>
