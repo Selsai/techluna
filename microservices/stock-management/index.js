@@ -1,4 +1,5 @@
 const express = require('express');
+const logger = require('./logger');
 const app = express();
 const PORT = process.env.PORT || 4003;
 
@@ -12,8 +13,8 @@ app.post('/update-stock', async (req, res) => {
     try {
       const response = await fetch(`${process.env.BACKEND_URL || 'http://localhost:5000'}/internal/stock/reserve`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-service-key': process.env.SERVICE_KEY }, body: JSON.stringify({ productId, quantity }) });
       res.status(response.status).json(await response.json());
-    } catch (error) { console.error('Erreur stock:', error.message); res.status(500).json({ message: 'Erreur serveur.' }); }
+    } catch (error) { logger.error('Erreur stock', { error: error.name }); res.status(500).json({ message: 'Erreur serveur.' }); }
 });
 
-if (require.main === module) app.listen(PORT, () => console.log(`Service stock sur ${PORT}`));
+if (require.main === module) app.listen(PORT, () => logger.info('Service stock prêt', { port: PORT }));
 module.exports = app;

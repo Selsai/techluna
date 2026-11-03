@@ -1,5 +1,8 @@
 // server.js
 const express = require('express');
+const path = require('path');
+const fs = require('fs');
+const logger = require('./logger');
 require('dotenv').config();
 const connectDB = require('./config/db');
 
@@ -9,7 +12,7 @@ app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  const allowed = (process.env.APP_ORIGIN || 'http://localhost:5173').split(',');
+  const allowed = (process.env.APP_ORIGIN || process.env.RENDER_EXTERNAL_URL || 'http://localhost:5173').split(',');
   const origin = req.headers.origin;
   if (origin && allowed.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
@@ -43,10 +46,23 @@ app.use('/api/orders', require('./routes/orderRoutes'));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/admin', require('./routes/secureAdminRoutes'));
 
+const webRoot = path.join(__dirname, 'public');
+const webIndex = path.join(webRoot, 'index.html');
+if (fs.existsSync(webIndex)) {
+  app.use(express.static(webRoot, { index: false }));
+  app.get(/^\/(?!api\/|internal\/).*/, (req, res) => res.sendFile(webIndex));
+}
+
 const PORT = process.env.PORT || 5000;
 app.use((error, req, res, next) => {
-  console.error('Erreur API:', error.message);
+  logger.error('Erreur API', { path: req.path, error: error.name });
   res.status(error.type === 'entity.parse.failed' ? 400 : 500).json({ message: 'Erreur serveur.' });
 });
-if (require.main === module) connectDB().then(() => app.listen(PORT, () => console.log(`API en écoute sur ${PORT}`)));
+if (require.main === module) connectDB().then(async () => {
+  if (process.env.SEED_DEMO_PRODUCTS === 'true') {
+    const Product = require('./models/Product');
+    if (await Product.countDocuments() === 0) await require('./seeder').seedProducts({ manageConnection: false });
+  }
+  app.listen(PORT, '0.0.0.0', () => logger.info('API en écoute', { port: PORT }));
+}).catch((error) => { logger.error('Démarrage impossible', { error: error.name }); process.exitCode = 1; });
 module.exports = app;

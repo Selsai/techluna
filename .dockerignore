@@ -1,0 +1,9 @@
+.git
+.env
+**/node_modules
+**/dist
+**/build
+captures
+frontend-git-backup
+.chrome-*
+.edge-*

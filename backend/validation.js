@@ -1,8 +1,18 @@
 const mongoose = require('mongoose');
+const Joi = require('joi');
 
-const text = (value, max = 200) => typeof value === 'string' && value.trim().length > 0 && value.trim().length <= max;
-const id = (value) => mongoose.isValidObjectId(value);
-const integer = (value, min = 0) => Number.isInteger(value) && value >= min;
-const address = (value) => value && ['street', 'city', 'postalCode', 'country'].every((key) => text(value[key], 120));
+/** Vérifie une chaîne non vide et sa longueur maximale avant toute écriture en base. */
+const text = (value, max = 200) => typeof value === 'string' && !Joi.string().trim().min(1).max(max).required().validate(value).error;
+/** Accepte uniquement un identifiant MongoDB textuel à 24 caractères hexadécimaux. */
+const id = (value) => typeof value === 'string' && !Joi.string().hex().length(24).required().validate(value).error && mongoose.isValidObjectId(value);
+/** Refuse les chaînes numériques afin que les quantités proviennent d'un entier JSON. */
+const integer = (value, min = 0) => !Joi.number().integer().min(min).strict().required().validate(value).error;
+const addressSchema = Joi.object({
+  street: Joi.string().trim().min(1).max(120).required(),
+  city: Joi.string().trim().min(1).max(120).required(),
+  postalCode: Joi.string().trim().min(1).max(120).required(),
+  country: Joi.string().trim().min(1).max(120).required(),
+}).unknown(true).required();
+const address = (value) => !addressSchema.validate(value).error;
 
 module.exports = { text, id, integer, address };

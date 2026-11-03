@@ -2,40 +2,42 @@
 
 Date : 3 novembre 2026. TechLuna, application MERN de vente en ligne.
 
-Le catalogue de démonstration comporte 25 produits avec les visuels fournis par la candidate, le logo TechLuna et six catégories. Les prix sont illustratifs ; ils ne constituent pas une offre commerciale réelle.
+J'ai préparé un catalogue de démonstration de 25 produits avec mes visuels, le logo TechLuna et six catégories. J'ai choisi des prix illustratifs ; ils ne constituent pas une offre commerciale réelle.
 
 ## Périmètre et état réel
 
-Le code, les conteneurs, la configuration CI/CD et la supervision locale sont livrés dans ce dépôt. La candidate a choisi Render et ses sous-domaines `onrender.com` pour la future mise en ligne. La capture du tableau de bord confirme l'existence de son compte Render et de services antérieurs ; aucun service TechLuna, base MongoDB hébergée, boîte SMTP ou dépôt Git distant TechLuna n'est encore configuré. Ces étapes externes restent à exécuter et à illustrer. Les mots de passe ne doivent pas figurer dans le rapport rendu ; remettre les secrets via un canal privé au jury si nécessaire.
+J'ai livré le code, les conteneurs, la configuration CI/CD et la supervision locale dans ce dépôt. J'ai choisi Render et ses sous-domaines `onrender.com` pour la future mise en ligne. Ma capture du tableau de bord confirme l'existence de mon compte Render et de services antérieurs ; mon dépôt GitHub TechLuna existe, mais je n'ai pas encore configuré de service TechLuna, de base MongoDB Atlas ni de boîte SMTP. Je dois encore exécuter et illustrer ces étapes externes. Je ne place aucun mot de passe dans ce rapport ; je transmettrai les accès nécessaires séparément au jury.
+
+J'ai créé le dépôt GitHub `Selsai/techluna` et choisi un déploiement exclusivement gratuit. J'ai préparé `Dockerfile.render` pour une démonstration par service web Render Free avec frontend et API sur la même origine et MongoDB Atlas Free. Je ne déploie pas les microservices privés, le SMTP ni la chaîne Prometheus/Alertmanager sur Render dans cette variante. Je signalerai les preuves cloud non obtenues comme non réalisées.
 
 ## E21 — Hébergement
 
-Choix retenu par la candidate : Render, avec deux services web séparés pour préproduction et production, chacun sur son sous-domaine `onrender.com`. Render fournit le routage HTTPS et des déploiements liés à Git ; ses [services web](https://render.com/docs/web-services) ont une URL publique et ses [services privés](https://render.com/docs/private-services) peuvent isoler les microservices. La base MongoDB sera une instance Atlas distincte par environnement, ou un MongoDB privé avec disque persistant, à choisir lors de la création des comptes. Render [documente la connexion à Atlas](https://render.com/docs/connect-to-mongodb-atlas). Comparer à ce moment les coûts des services privés, la région, les sauvegardes et les limites du plan retenu. Les conteneurs Compose fournis servent au développement et aux tests locaux.
+J'ai choisi Render Free pour préparer deux services web séparés, préproduction et production, chacun sur son sous-domaine `onrender.com`. `Dockerfile.render` construit le frontend et l'API dans un seul conteneur par environnement. Je prévois un projet MongoDB Atlas Free distinct par service pour isoler les données ; Render [documente la connexion à Atlas](https://render.com/docs/connect-to-mongodb-atlas). Les services privés Render ne sont pas disponibles gratuitement ; j'ai conservé Docker Compose pour la démonstration locale des microservices et de la supervision.
 
 ## E22 — Environnement sécurisé
 
-1. Créer deux environnements Render séparés, reliés aux branches Git choisies, avec des services et bases distincts.
-2. Configurer les variables secrètes dans le tableau de bord Render : URI MongoDB, `JWT_SECRET`, `SERVICE_KEY`, `NODE_ENV=production`, SMTP et origine publique. Ne jamais les commiter.
-3. Publier le frontend et l'API derrière la même origine publique pour conserver le cookie de session. Garder gateway et microservices sur le réseau privé Render. Le schéma précis des services sera figé lors de l'ouverture du compte et du choix du plan.
-4. Tester `/health`, l'inscription, la connexion, la commande et l'administration sur la préproduction avant production.
+1. Je créerai deux services web Render Free séparés, reliés au dépôt GitHub, avec deux projets Atlas distincts.
+2. Je définirai `MONGO_URI`, `JWT_SECRET`, `SERVICE_KEY`, `NODE_ENV=production` et `SEED_DEMO_PRODUCTS=true` dans chaque service Render, avec des valeurs différentes. Je ne les commiterai pas.
+3. Je publierai le frontend compilé et l'API dans le même service web pour conserver le cookie de session. Je garderai les microservices, la gateway et le profil de supervision dans Compose local.
+4. Je testerai `/health`, l'inscription, la connexion, la commande et l'administration en préproduction avant de créer ou de promouvoir la production.
 
 En local, seul Caddy expose 80/443 ; MongoDB, l'API, la gateway et les microservices restent sur le réseau Compose interne. Sur Render, le routage TLS sera pris en charge par la plateforme. Le JWT est dans un cookie HTTPOnly, avec `Secure` en production ; le rôle est revérifié dans MongoDB. Les montants sont recalculés côté serveur et le stock est réservé par mise à jour atomique. Le backend refuse les origines non prévues pour les requêtes de modification. Aucun paiement bancaire réel n'est collecté : le mode est uniquement un choix de simulation.
 
 ## E23 — Domaine, DNS et TLS
 
-Render attribue un sous-domaine `onrender.com` à chaque service web et [gère automatiquement ses certificats TLS](https://render.com/docs/tls). Aucun domaine personnalisé ni zone DNS n'est nécessaire pour la première mise en ligne. Après création des services, vérifier les deux noms réellement attribués, `curl -I https://<nom>/health`, la redirection HTTP vers HTTPS et la validité du certificat dans le navigateur. La configuration DNS personnalisée demandée dans la consigne ne s'appliquera que si la candidate décide plus tard d'acheter un domaine ; cela sera indiqué comme non réalisé dans le rendu actuel.
+Render attribue un sous-domaine `onrender.com` à chaque service web et [gère automatiquement ses certificats TLS](https://render.com/docs/tls). Je n'ai pas besoin d'acheter un domaine ni de configurer une zone DNS pour cette première mise en ligne. Après création des services, je vérifierai les deux noms réellement attribués, `curl -I https://<nom>/health`, la redirection HTTP vers HTTPS et la validité du certificat dans le navigateur. Je noterai explicitement que la réservation d'un domaine personnalisé et la configuration DNS demandées par la consigne ne sont pas réalisées avec mon choix gratuit.
 
 ## E24 — CI/CD
 
-`.github/workflows/ci.yml` lance installation, test du panier, compilation React, lint, contrôle de syntaxe API, validation Compose et construction des images. `.github/workflows/deploy.yml` répète les vérifications puis déclenche les [deploy hooks Render](https://render.com/docs/deploy-hooks) de l'environnement choisi. Créer les environnements GitHub `preproduction` et `production`, protéger la production par validation humaine et définir `RENDER_DEPLOY_HOOK_URL` pour le service public, ainsi que les hooks des services privés `RENDER_GATEWAY_DEPLOY_HOOK_URL`, `RENDER_NOTIFICATIONS_DEPLOY_HOOK_URL` et `RENDER_STOCK_DEPLOY_HOOK_URL` lorsqu'ils existent. Chaque hook est un secret. Une fois les services connectés à Git, Render peut aussi attendre [la réussite des contrôles CI](https://render.com/docs/deploys) avant un déploiement automatique. La création des services, des hooks et la vérification des déploiements restent à faire après l'ouverture du compte.
+J'ai configuré `.github/workflows/ci.yml` pour installer, tester, compiler, analyser et construire les images à chaque push ou pull request. Le workflow manuel `.github/workflows/deploy.yml` exécute les vérifications, construit `Dockerfile.render`, **pousse l'image dans GitHub Container Registry**, puis déclenche le [deploy hook Render](https://render.com/docs/deploy-hooks) de l'environnement choisi. L'option `publish_only=true` me permet de publier l'image initiale avant de créer le service Render. Je créerai ensuite les secrets GitHub `RENDER_PREPROD_DEPLOY_HOOK_URL` et `RENDER_PROD_DEPLOY_HOOK_URL`. Je n'affirme pas avoir exécuté le pipeline GitHub ni déployé sur Render tant que les captures correspondantes ne sont pas disponibles.
 
 ## E25 — Journalisation et audit
 
-Les logs API, gateway, notifications, stock, Caddy et MongoDB vont vers stdout/stderr ; `docker compose logs --since=1h` permet l'audit local. Caddy écrit des lignes JSON. Sur Render, consulter les journaux de chaque service et prévoir un export si une rétention longue est exigée. Les secrets et jetons ne sont plus inscrits dans les logs actifs. L'audit npm de l'API et des dépendances de production du frontend a été ramené à zéro vulnérabilité ; l'outillage de développement ESLint comporte encore des alertes modérées transitives à suivre. Répéter `npm audit --omit=dev` et `npm audit` régulièrement, ainsi que sur les autres services avant déploiement.
+J'ai remplacé les `console.log/error` des services Node actifs par Winston avec horodatage, niveau, nom du service et format JSON sur stdout. Caddy écrit aussi des lignes JSON. Je peux contrôler localement avec `docker compose logs --since=1h` et, après déploiement, filtrer les journaux Render du service web. Je n'inscris pas les secrets et jetons dans les messages Winston. L'audit npm de l'API et des dépendances de production du frontend a été ramené à zéro vulnérabilité ; l'outillage de développement ESLint comporte encore des alertes modérées transitives à suivre. Je répéterai `npm audit --omit=dev` et `npm audit` régulièrement.
 
 ## E26 — Supervision et alertes
 
-Le profil Compose `monitoring` démarre Prometheus, Blackbox Exporter et Alertmanager pour le test local. Les sondes HTTP testent le frontend, le backend, la gateway, les notifications et le stock toutes les 30 secondes. Après deux minutes d'échec, l'alerte `ServiceIndisponible` est transmise au microservice de notification, qui envoie un email à `ADMIN_EMAIL` si SMTP est configuré. Sur Render, créer une supervision séparée pour chaque environnement, avec sondes HTTPS externes sur les URL `onrender.com` et alertes vers une adresse de contrôle. Tester en préproduction l'arrêt d'un service, le déclenchement et la résolution avant d'appliquer la même configuration en production.
+J'ai configuré le profil Compose `monitoring` avec Prometheus, Blackbox Exporter et Alertmanager. Les sondes HTTP vérifient le frontend, le backend, la gateway, les notifications et le stock toutes les 30 secondes. Après deux minutes d'échec, l'alerte `ServiceIndisponible` arrive au service de notification, qui la journalise avec Winston et envoie un email à `ADMIN_EMAIL` seulement si SMTP est configuré. J'ai aussi fourni `monitoring/prometheus-cloud.example.yml` pour surveiller les deux URL Render réelles depuis le poste local après leur création ; je remplacerai ses deux noms fictifs et définirai `PROMETHEUS_CONFIG_FILE` dans mon `.env`. Je ne prétends pas que Prometheus tourne sur Render Free. Render bloque les ports SMTP usuels depuis les services web gratuits.
 
 ## E27 — Bugs constatés et corrections
 
@@ -53,14 +55,75 @@ Le profil Compose `monitoring` démarre Prometheus, Blackbox Exporter et Alertma
 
 ## E28 — Sécurité et robustesse
 
-Validation des champs de compte, adresses, quantités, identifiants et statuts ; limitation de la taille JSON ; gestion centralisée des erreurs ; limitation des tentatives de connexion ; clé interservices ; variables d'environnement exclues de Git et des images Docker ; en-têtes de sécurité ; cookie HTTPOnly. Les parcours critiques doivent être rejoués en préproduction avec des données de test avant toute mise en ligne. Pour une exploitation commerciale réelle, ajouter un prestataire de paiement conforme et des transactions MongoDB sur replica set pour garantir l'atomicité multi-produit en cas de panne totale du processus.
+J'ai validé les champs de compte, adresses, quantités, identifiants et statuts avec Joi et les modèles ; limité la taille JSON et les tentatives de connexion ; protégé les échanges interservices par une clé ; exclu `.env` de Git et des images Docker ; ajouté des en-têtes de sécurité et un cookie HTTPOnly. Mon test backend vérifie le refus des formulaires vides et d'un nom d'utilisateur contenant `<script>`, ainsi que l'accès non authentifié aux routes administrateur et le rejet d'une origine CORS interdite. Je dois encore rejouer les parcours critiques en préproduction avec des données de test. Pour une exploitation commerciale réelle, il faudrait un prestataire de paiement conforme et des transactions MongoDB sur replica set pour garantir l'atomicité multi-produit en cas de panne totale du processus.
 
 ## E29 — Documentation et journal des évolutions
 
-Les contrats d'API ci-dessous, ce rapport et `CHANGELOG.md` constituent la documentation livrée avec le code. Les points d'entrée sont `GET /api/products`, `POST /api/auth/register`, `POST /api/auth/login`, `GET /api/auth/me`, `POST /api/auth/logout`, `POST /api/orders`, `GET /api/orders/mine`, `GET /api/orders` (admin), `PUT /api/orders/:orderId/status` (admin), `PUT /api/products/:productId/stock` (admin), ainsi que `/api/admin/products` et `/api/admin/users` pour les opérations de gestion. Le JSON d'une commande contient `items: [{productId, quantity}]`, `shippingAddress`, `paymentMethod`, `shippingMethod` ; `price` et `total` envoyés par le client sont ignorés.
+J'ai généré [docs/API_GENEREE.md](docs/API_GENEREE.md) à partir des fichiers de routes avec `npm run docs:api`. Ce rapport, l'inventaire généré, le code et `CHANGELOG.md` constituent ma documentation. Le JSON d'une commande contient `items: [{productId, quantity}]`, `shippingAddress`, `paymentMethod` et `shippingMethod` ; le backend ignore tout `price` ou `total` transmis par le navigateur et recalcule ces valeurs depuis MongoDB.
+
+## Vérification de la consigne, pages 5 et 21 à 33
+
+| Demande de la consigne | Réalisation et fichier | Vérification ou limite |
+| --- | --- | --- |
+| Catalogue, catégories et ajout au panier | `frontend/src/pages/ProductList.jsx`, `backend/seeder.js` | 25 fiches et 26 fichiers image dont le logo ; parcours complet non rejoué avec une base active sur ce PC. |
+| Panier global avec ajout, diminution, retrait et vidage | `frontend/src/context/CartContext.jsx`, `frontend/src/pages/Cart.jsx` | Test Vitest du panier passé ; interface à revoir avec données réelles. |
+| Adresse, transport, paiement simulé et synthèse | `ShippingPayment.jsx`, `Order.jsx`, `backend/controllers/secureOrderController.js` | Données contrôlées ; aucun paiement bancaire réel. |
+| Rôles, administration, commandes, produits, stock, utilisateurs | `backend/middlewares/authMiddleware.js`, `secureAdminController.js`, `secureProductController.js`, `frontend/src/pages/Admin.jsx` | Accès admin côté serveur ; validation visuelle et parcours complet encore à capturer. |
+| Notifications de commande, statut et stock | `backend/notify.js`, `microservices/notifications/index.js`, gateway | Appels présents ; aucun email réel vérifié faute de paramètres SMTP. |
+| Microservice de stock et gateway | `microservices/stock-management/index.js`, `gateway/server.js` | Routes locales en place ; la réservation d'une commande reste effectuée directement par l'API et n'est pas entièrement décentralisée. |
+| Secrets en `.env`, cookie HTTPOnly, contrôle des données | `.gitignore`, `secureAuthController.js`, `backend/validation.js` | `.env` local ignoré par Git, validations Joi et Mongoose, test de session absente passé. |
+| Gestion des erreurs et messages côté client | Contrôleurs sécurisés, middleware d'erreur, pages React | `try/catch` et messages d'erreur React ; je n'ai pas ajouté `connect-flash`, qui est une suggestion du support. |
+| Qualité et dépendances | ESLint, Prettier, Vite, Vitest, audits npm | Lint, build et tests passés ; les alertes transitives de développement restent à surveiller. |
+| Logs et aide au débogage | Winston JSON sur stdout dans les quatre services Node actifs, logs JSON Caddy | Les logs Compose sont consultables ; aucune centralisation externe n'est configurée. |
+| Documentation générée et historique | `scripts/generate-api-docs.cjs`, `docs/API_GENEREE.md`, `CHANGELOG.md` | Génération reproductible ; les captures cloud manquent tant que Render n'est pas déployé. |
+
+## Mes séquences détaillées de réalisation
+
+### 1. Reprise et diagnostic du code
+
+1. J'ai relevé la structure du projet MERN d'origine : frontend React, API Express, base MongoDB, gateway et deux microservices.
+2. J'ai parcouru les routes et contrôleurs, puis repéré les défauts concrets : prix de commande envoyés par le client, stock non réservé, rôle administrateur non revérifié en base et token exposé au navigateur.
+3. J'ai relié chaque correction à un fichier dans la section E27 et au journal `CHANGELOG.md`. J'ai conservé les composants locaux nécessaires à l'examen au lieu de prétendre qu'ils sont déjà déployés.
+
+### 2. Correction des données, commandes et accès
+
+1. J'ai ajouté des contrôles Joi dans `backend/validation.js`, puis validé les identifiants, textes, quantités et adresses dans les contrôleurs. Mongoose applique aussi des contraintes aux modèles.
+2. J'ai déplacé la vérification du rôle dans le middleware serveur : chaque requête authentifiée recharge l'utilisateur depuis MongoDB. Un simple champ modifié dans le navigateur ne suffit donc pas à obtenir l'accès admin.
+3. À la création d'une commande, je relis les produits et prix en base, je réserve chaque quantité avec une mise à jour conditionnelle du stock, puis je calcule le total. Si une réservation échoue, je compense les réservations déjà effectuées. Cette compensation ne remplace pas une transaction MongoDB en cas de panne totale du processus ; je l'indique dans E28.
+4. J'ai limité les actions de gestion des commandes et produits aux administrateurs et contrôlé les statuts autorisés. J'ai prévu des messages visibles sur les formulaires lorsqu'une requête échoue.
+
+### 3. Interface et données de démonstration
+
+1. J'ai rangé les 25 visuels reçus dans six catégories et intégré le logo TechLuna dans l'en-tête et les métadonnées de la boutique.
+2. J'ai construit une interface responsive pour le catalogue et harmonisé les pages de connexion, inscription, panier, commande et administration avec la palette ivoire, rose poudré, mauve et anthracite.
+3. J'ai écrit un script de semis idempotent : il ajoute ou met à jour les fiches sans effacer les données existantes. Sur Render, je n'exécute le semis automatique que si la collection Produits est vide.
+
+### 4. Conteneurisation, CI et hébergement gratuit
+
+1. J'ai fourni des Dockerfiles pour chaque composant local et un `docker-compose.yml` qui les relie sans exposer MongoDB ni les microservices au public.
+2. J'ai préparé `Dockerfile.render` pour un service web gratuit réunissant API et frontend compilé. Ce regroupement garde l'authentification sur une seule origine HTTPS, car les services privés Render sont payants.
+3. J'ai créé une CI GitHub pour installer, tester, analyser et construire le projet. Le workflow de déploiement manuel ajoute la publication de l'image dans GHCR, puis attend deux deploy hooks Render, un par environnement ; aucune mise en ligne n'a encore été déclenchée.
+4. J'ai testé Docker Desktop : les images applicatives ont été construites et les conteneurs ont démarré. Sur ce PC, `mongo:7` s'arrête avec le code 132 parce que le processeur ne fournit pas AVX ; la requête catalogue retourne donc 502. J'ai arrêté la pile sans supprimer ses volumes. Je poursuivrai les parcours avec Atlas Free avant de déclarer une validation de bout en bout.
+
+### 5. Documentation, tests et preuves
+
+1. J'ai exécuté le test frontend du panier, le test backend de la sonde et du contrôle d'accès, ESLint, la compilation Vite et la validation de la configuration Compose. Ces contrôles passent ; ils ne démontrent pas à eux seuls un parcours complet avec MongoDB.
+2. J'ai créé `scripts/generate-api-docs.cjs` pour extraire automatiquement les méthodes, chemins et niveaux d'accès des fichiers de routes. Je régénère `docs/API_GENEREE.md` avec `npm run docs:api` après toute modification des routes.
+3. Je conserve les anciennes captures comme prévisualisations historiques. Après connexion à Atlas et déploiement Render, je prendrai des captures TechLuna portant les URL, statuts et résultats réellement observés, sans afficher de secrets.
 
 ## Preuves à joindre au rendu final
 
-Les trois captures initiales dans `captures/` montrent le catalogue desktop, le catalogue mobile et la connexion sur une prévisualisation locale antérieure au changement de nom TechLuna. Le catalogue utilisait une API de démonstration de quatre fiches pour le contrôle du design ; ces images ne prouvent pas un déploiement Render ni un paiement réel. Le code livré et le logo portent l'identité finale TechLuna.
+Mes trois captures initiales dans `captures/` montrent le catalogue desktop, le catalogue mobile et la connexion sur une prévisualisation antérieure au changement de nom TechLuna. J'avais utilisé une API de démonstration de quatre fiches pour contrôler le design. Je ne les présente pas comme preuves de déploiement Render ou de paiement réel.
 
-Captures à réaliser sur les vrais environnements, sans données sensibles visibles : tableau de bord Render avec deux services web et leurs services privés, URL `onrender.com` et certificat TLS de chacun, exécution verte de la CI, déploiement préproduction puis production, parcours boutique et administration, requête invalidée (400/403), journaux filtrés, sondes et email d'alerte, restauration de sauvegarde MongoDB. Joindre aussi les captures du profil Compose local si utiles. La zone DNS personnalisée n'existe pas avec le seul domaine fourni par Render. Les identifiants de connexion doivent être communiqués séparément au jury avec le minimum de privilèges nécessaire.
+| Preuve demandée | Capture que je dois produire | État au 3 novembre 2026 |
+| --- | --- | --- |
+| E21–E22 : préproduction et production | Tableau de bord Render montrant deux services TechLuna, sans valeurs de secrets | À faire après création des services. |
+| E23 : URL et TLS | Adresse `https://...onrender.com` et certificat valide pour chaque service | À faire ; aucun domaine personnel ni DNS personnalisé. |
+| E24 : CI/CD | Exécution verte de GitHub Actions et déploiements Render successifs | À faire après publication de la version adaptée. |
+| E25 : journaux | Logs Render filtrés, puis `docker compose logs` pour les composants locaux | À faire, en masquant toute donnée sensible. |
+| E26 : sondes et alertes | État des deux sondes HTTPS et journal Winston de l'alerte dans Compose local ; email seulement si SMTP est obtenu | Configuration prête, test de déclenchement non réalisé ; pas de Prometheus hébergé sur Render Free. |
+| E27–E28 : parcours et refus | Catalogue TechLuna, panier, commande, admin, réponse 400 et réponse 403 | À refaire sur une base fonctionnelle. |
+| E29 : code documenté | `npm run docs:api`, fichier généré et `CHANGELOG.md` | Génération réalisée ; capture facultative à ajouter. |
+| Sauvegarde/restauration | Export et réimport manuel d'une base de test Atlas Free | Non réalisé ; aucune sauvegarde managée à revendiquer. |
+
+Je joindrai seulement des captures obtenues sur une application réellement accessible et je retirerai ou légenderai clairement les anciennes prévisualisations. Je transmettrai au jury les accès strictement nécessaires par un canal privé, jamais dans Git ou dans ce rapport.

@@ -1,6 +1,7 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
 const User = require('./models/User');
+const logger = require('./logger');
 
 async function bootstrap() {
   const { MONGO_URI, ADMIN_USERNAME, ADMIN_EMAIL, ADMIN_PASSWORD } = process.env;
@@ -9,7 +10,7 @@ async function bootstrap() {
   try {
     if (await User.exists({ role: 'admin' })) throw new Error('Un administrateur existe déjà. Aucune modification effectuée.');
     await User.create({ username: ADMIN_USERNAME, email: ADMIN_EMAIL, password: ADMIN_PASSWORD, role: 'admin' });
-    console.log('Administrateur initial créé.');
+    logger.info('Administrateur initial créé');
   } finally { await mongoose.disconnect(); }
 }
-bootstrap().catch((error) => { console.error(error.message); process.exitCode = 1; });
+bootstrap().catch((error) => { logger.error('Création administrateur impossible', { error: error.name }); process.exitCode = 1; });

@@ -1,11 +1,13 @@
-const axios = require('axios');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const User = require('../models/User');
+const notify = require('../notify');
 const { id, integer, address } = require('../validation');
 const statuses = ['En attente', 'En cours de traitement', 'Expédiée', 'Délivrée', 'Annulée'];
 const payments = ['Carte bancaire', 'PayPal', 'Virement'];
 const shippings = ['colissimo', 'chronopost'];
 
+/** Crée une commande après validation, réservation conditionnelle du stock et recalcul serveur du total. */
 exports.createOrder = async (req, res, next) => {
   const { items, shippingAddress, paymentMethod, shippingMethod } = req.body || {};
   if (!Array.isArray(items) || items.length < 1 || items.length > 50 || !address(shippingAddress) || !payments.includes(paymentMethod) || !shippings.includes(shippingMethod)) return res.status(400).json({ message: 'Commande invalide.' });
@@ -24,9 +26,7 @@ exports.createOrder = async (req, res, next) => {
     }
     const total = Math.round(orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0) * 100) / 100;
     const order = await Order.create({ userId: req.user.id, items: orderItems, total, shippingAddress, paymentMethod, shippingMethod });
-    if (process.env.NOTIFICATION_URL && process.env.ADMIN_EMAIL) {
-      axios.post(process.env.NOTIFICATION_URL, { to: process.env.ADMIN_EMAIL, subject: 'Nouvelle commande', text: `Commande ${order.id} créée.` }, { headers: { 'x-service-key': process.env.SERVICE_KEY }, timeout: 5000 }).catch((error) => console.error('Notification indisponible:', error.message));
-    }
+    notify(process.env.ADMIN_EMAIL, 'Nouvelle commande', `Commande ${order.id} créée.`);
     res.status(201).json({ message: 'Commande créée.', order });
   } catch (error) {
     for (const item of reserved) await Product.updateOne({ _id: item.productId }, { $inc: { stock: item.quantity } }).catch(() => {});
@@ -41,6 +41,10 @@ exports.updateOrderStatus = async (req, res, next) => {
     if (!id(req.params.orderId) || !statuses.includes(req.body?.status)) return res.status(400).json({ message: 'Statut ou identifiant invalide.' });
     const order = await Order.findByIdAndUpdate(req.params.orderId, { status: req.body.status }, { new: true, runValidators: true });
     if (!order) return res.status(404).json({ message: 'Commande introuvable.' });
+    if (process.env.NOTIFICATION_URL) {
+      const customer = await User.findById(order.userId).select('email');
+      if (customer?.email) notify(customer.email, 'Suivi de votre commande TechLuna', `La commande ${order.id} est maintenant : ${order.status}.`);
+    }
     res.json({ message: 'Statut mis à jour.', order });
   } catch (error) { next(error); }
 };

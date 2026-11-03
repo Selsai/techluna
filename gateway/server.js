@@ -1,6 +1,7 @@
 // gateway/server.js
 const express = require('express');
 const dotenv = require('dotenv');
+const logger = require('./logger');
 //const authProxy = require('./routes/auth');
 const notifiProxy = require('./routes/notifi');
 const stockProxy = require('./routes/stock');
@@ -21,5 +22,5 @@ app.get('/health', (req, res) => res.json({ status: 'ok' }));
 // Lancer le Gateway
 const PORT = process.env.GATEWAY_PORT || 8000;
 app.listen(PORT, () => {
-  console.log(`Gateway opérationnel sur le port ${PORT}`);
+  logger.info('Gateway opérationnelle', { port: PORT });
 });

@@ -2,6 +2,7 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const Product = require('./models/Product'); // Assurez-vous que le chemin est correct
+const logger = require('./logger');
 
 dotenv.config();
 
@@ -38,19 +39,19 @@ const products = [
 ].map(([name, category, price, description, image]) => ({ name, category, price, description, imageUrl: `/images/${image}`, stock: 20 }));
 
 // Fonction pour insérer les produits
-const seedProducts = async () => {
+const seedProducts = async ({ manageConnection = true } = {}) => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    if (manageConnection) await mongoose.connect(process.env.MONGO_URI);
     for (const product of products) await Product.updateOne({ name: product.name }, { $set: { category: product.category, description: product.description, price: product.price, imageUrl: product.imageUrl }, $setOnInsert: { stock: product.stock } }, { upsert: true });
 
-    console.log('Jeux de produits insérés avec succès !');
-    await mongoose.disconnect();
+    logger.info('Jeu de produits inséré');
+    if (manageConnection) await mongoose.disconnect();
   } catch (error) {
-    console.error('Erreur lors de l\'insertion des produits', error);
-    await mongoose.disconnect();
-    process.exitCode = 1;
+    logger.error('Insertion des produits impossible', { error: error.name });
+    if (manageConnection) await mongoose.disconnect();
+    throw error;
   }
 };
 
-// Lancer le seed
-seedProducts();
+if (require.main === module) seedProducts().catch(() => { process.exitCode = 1; });
+module.exports = { seedProducts };

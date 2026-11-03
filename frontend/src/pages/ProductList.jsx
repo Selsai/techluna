@@ -6,6 +6,7 @@ import './ProductList.css';
 
 const categories = ['Tout voir', 'Audio', 'Ordinateurs', 'Téléphones', 'Accessoires', 'Composants', 'Écrans & tablettes'];
 
+// La recherche, le filtre et le tri s'appliquent aux produits reçus de l'API.
 const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState('Tout voir');
